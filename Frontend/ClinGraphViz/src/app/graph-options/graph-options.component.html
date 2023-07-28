@@ -1,0 +1,6 @@
+<div>
+    <label>{{inputName}}</label>
+    <br>
+    <textarea *ngIf="inputType == 'textarea'"></textarea>
+    <input *ngIf="inputType != 'textarea'" [type]="inputType" />
+</div>

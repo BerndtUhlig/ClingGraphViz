@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { AstPageComponent } from './ast-page/ast-page.component';
+import { MainPageComponent } from './main-page/main-page.component';
 
 const routes: Routes = [
-  { path: '', redirectTo: '/ast_page', pathMatch: 'full' },
-  { path: 'ast_page', component: AstPageComponent}
+  { path: '', redirectTo: '/main-page', pathMatch: 'full' },
+  { path: '/main-page', component: MainPageComponent}
 
 ];
 
