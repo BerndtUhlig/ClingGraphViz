@@ -14,22 +14,29 @@ from . import helperFuncs
 # Create your views here.
 import json
 
-@require_http_methods(["POST"])
+@require_http_methods(["PUT"])
 @csrf_exempt
-def clingviz(request):
-        try:
-            body = json.loads(request.body)
-        except json.JSONDecodeError as e:
-            return HttpResponseBadRequest("An error occured: {msg}".format(msg=e.msg))
+def graphUpdate(request):
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError as e:
+        return HttpResponseBadRequest("An error occured: {msg}".format(msg=e.msg))
 
-        if not "user-input" in body.keys():
-            return HttpResponseBadRequest("The request body did not contain user inputs")
+    if not "user-input" in body.keys():
+        return HttpResponseBadRequest("The request body did not contain user inputs")
 
-        user_input = body["user-input"]
+    user_input = body["user-input"]
+    ctl = clingo.Control()
+    ctl.load("./encodings/program.lp")
+    ctl.add(user_input)
+
+@require_http_methods(["GET"])
+@csrf_exempt
+def graphInit():
+
 
         ctl = clingo.Control()
         ctl.load("./encodings/program.lp")
-        ctl.add(user_input)
         ctl.ground()
         models = []
         with ctl.solve(yield_= True) as handle:
