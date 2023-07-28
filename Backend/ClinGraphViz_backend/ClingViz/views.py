@@ -1,12 +1,14 @@
 import os
 
+import clingo
+import clingraph
 from django.http import HttpResponseBadRequest, HttpResponse
 import ast
-import scripts.reify_ast
+from .scripts import reify_ast
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 
-import helperFuncs
+from . import helperFuncs
 
 
 # Create your views here.
@@ -15,40 +17,51 @@ import json
 @require_http_methods(["POST"])
 @csrf_exempt
 def clingviz(request):
-    if request.method == 'POST':
         try:
             body = json.loads(request.body)
         except json.JSONDecodeError as e:
             return HttpResponseBadRequest("An error occured: {msg}".format(msg=e.msg))
 
-        if not all(key in body.keys() for key in ["ast","program","encoding"]):
-            return HttpResponseBadRequest("The file did not contain \"ast\", \"program\", or \"encoding\"")
+        if not "user-input" in body.keys():
+            return HttpResponseBadRequest("The request body did not contain user inputs")
+
+        user_input = body["user-input"]
+
+        ctl = clingo.Control()
+        ctl.load("./encodings/program.lp")
+        ctl.add(user_input)
+        ctl.ground()
+        models = []
+        with ctl.solve(yield_= True) as handle:
+            for model in handle:
+                models.append(model.symbols(atoms=True))
+
+        ctl.load("./encodings/encoding.lp")
+        ctl.add(models[0].__str__())
+        ctl.ground()
+        fb = clingraph.Factbase()
+        with ctl.solve(yield_=True) as handle:
+            for model in handle:
+                fb.add_model(model)
+                break
+
+        ctl.load("./encodings/options-encoding.lp")
+        ctl.add(models[0].__str__())
+        options_models = []
+        with ctl.solve(yield_=True) as handle:
+            for model in handle:
+                options_models.append(model.symbols(atoms=True))
+                break
+
+        graph = clingraph.compute_graphs(fb)
+        clingraph.render(graph,format="svg")
+        with open('out/default.svg', 'r') as svg_file:
+            svg_content = svg_file.read()
+        print("Done. Sending response...")
+        raw = {"data": svg_content, "option-data": options_models.__str__()}
+        js = json.dumps(raw)
+        response = HttpResponse(js, content_type='application/json', status=200)
+        return response
 
 
-        print("JSON received, preparing files.")
-        f1 = open("program.lp", "w")
-        f2 = open("encoding.lp", "w")
-        program = json.dumps(body["program"])
-        encoding = json.dumps(body["encoding"])
-        f1.write(ast.literal_eval(program))
-        f2.write(ast.literal_eval(encoding))
-        f1.flush()
-        f2.flush()
-        print("files prepared, checking AST")
-        if body["ast"]:
 
-            print("Done. Sending output to file...")
-            f1.close()
-            #TODO: Change this to a "with" statement
-            f1 = open("program.lp", "w")
-            f1.write(output)
-            f1.flush()
-            print("Done. Starting clingraph...")
-            response = helperFuncs.encode_and_make_graph("program.lp", "ClingViz/viz.lp")
-            return response
-        else:
-            print("Regular graph requested: ")
-            response = helperFuncs.encode_and_make_graph("program.lp", "encoding.lp")
-            return response
-    else:
-        pass
