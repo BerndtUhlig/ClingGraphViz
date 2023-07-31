@@ -4,11 +4,10 @@ import clingo
 import clingraph
 from django.http import HttpResponseBadRequest, HttpResponse
 import ast
-from .scripts import reify_ast
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-
-from . import helperFuncs
+from .contexts import OptionsList, VizContext, createOptionsList
+from clorm.clingo import Control as ClormControl
 
 
 # Create your views here.
@@ -29,46 +28,43 @@ def graphUpdate(request):
     ctl = clingo.Control()
     ctl.load("./encodings/program.lp")
     ctl.add(user_input)
+    ctl.ground()
+    models = []
+    with ctl.solve(yield_=True) as handle:
+        for model in handle:
+            models.append(model.symbols(atoms=True))
 
-@require_http_methods(["GET"])
-@csrf_exempt
-def graphInit():
+    ctl.load("./encodings/encoding.lp")
+    ctl.add(models[0].__str__())
+    ctl.ground()
+    fb = clingraph.Factbase()
+    with ctl.solve(yield_=True) as handle:
+        for model in handle:
+            fb.add_model(model)
+            break
+
+    ctl.load("./encodings/options-encoding.lp")
+    ctl.add(models[0].__str__())
+    options_models = []
+    clormCtl = ClormControl(unifier=[VizContext])
+    with clormCtl.solve(yield_=True) as handle:
+        for model in handle:
+            options_models.append(model.facts(atoms=True))
+            break
+
+    oL:OptionsList = createOptionsList(options_models[0])
+    graph = clingraph.compute_graphs(fb)
+    clingraph.render(graph, format="svg")
+    with open('out/default.svg', 'r') as svg_file:
+        svg_content = svg_file.read()
+    print("Done. Sending response...")
+    raw = {"data": svg_content, "option-data": oL.toJson()}
+    js = json.dumps(raw)
+    response = HttpResponse(js, content_type='application/json', status=200)
+    return response
 
 
-        ctl = clingo.Control()
-        ctl.load("./encodings/program.lp")
-        ctl.ground()
-        models = []
-        with ctl.solve(yield_= True) as handle:
-            for model in handle:
-                models.append(model.symbols(atoms=True))
 
-        ctl.load("./encodings/encoding.lp")
-        ctl.add(models[0].__str__())
-        ctl.ground()
-        fb = clingraph.Factbase()
-        with ctl.solve(yield_=True) as handle:
-            for model in handle:
-                fb.add_model(model)
-                break
-
-        ctl.load("./encodings/options-encoding.lp")
-        ctl.add(models[0].__str__())
-        options_models = []
-        with ctl.solve(yield_=True) as handle:
-            for model in handle:
-                options_models.append(model.symbols(atoms=True))
-                break
-
-        graph = clingraph.compute_graphs(fb)
-        clingraph.render(graph,format="svg")
-        with open('out/default.svg', 'r') as svg_file:
-            svg_content = svg_file.read()
-        print("Done. Sending response...")
-        raw = {"data": svg_content, "option-data": options_models.__str__()}
-        js = json.dumps(raw)
-        response = HttpResponse(js, content_type='application/json', status=200)
-        return response
 
 
 
