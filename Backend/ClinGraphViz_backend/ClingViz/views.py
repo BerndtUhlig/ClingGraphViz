@@ -21,10 +21,10 @@ def graphUpdate(request):
     except json.JSONDecodeError as e:
         return HttpResponseBadRequest("An error occured: {msg}".format(msg=e.msg))
 
-    if not "user-input" in body.keys():
+    if not "user_input" in body.keys():
         return HttpResponseBadRequest("The request body did not contain user inputs")
 
-    user_input = body["user-input"]
+    user_input = body["user_input"]
     ctl = clingo.Control()
     ctl.load("./encodings/program.lp")
     ctl.add(user_input)
@@ -58,7 +58,7 @@ def graphUpdate(request):
     with open('out/default.svg', 'r') as svg_file:
         svg_content = svg_file.read()
     print("Done. Sending response...")
-    raw = {"data": svg_content, "option-data": oL.toJson()}
+    raw = {"data": svg_content, "option_data": oL.toJson()}
     js = json.dumps(raw)
     response = HttpResponse(js, content_type='application/json', status=200)
     return response

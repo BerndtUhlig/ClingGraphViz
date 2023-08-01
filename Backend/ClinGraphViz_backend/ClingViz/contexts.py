@@ -16,14 +16,28 @@ class user_input(Predicate):
     name = StringField
     value = StringField
 
+class Option:
+    def __init__(self, type:str, name:str):
+        self.type = type
+        self.name = name
+
+    def __eq__(self, other):
+        if isinstance(other, Option):
+            return other.name == self.name and other.type == self.type
+        else:
+            return False
 
 class NodeOptions:
-    def __init__(self, id: int, options: set[str]):
+    def __init__(self, id: int, options: list[Option]):
         self.id = id
         self.options = options
 
-    def addOption(self, option:str) -> None:
-        self.options.add(option)
+    def addOption(self, option:Option) -> None:
+        for selfOption in self.options:
+            if selfOption == option:
+                return
+
+        self.options.append(option)
 
     def toJson(self) -> str:
         try:
@@ -36,12 +50,13 @@ class OptionsList:
     def __init__(self, options: list[NodeOptions]):
         self.options = options
 
-    def add(self,id:int, option:str):
+    def add(self,id:int, option:Option):
         for opt in self.options:
             if opt.id == id:
                 opt.addOption(option)
                 return
-        self.options.append(NodeOptions(id,set(option)))
+
+        self.options.append(NodeOptions(id,[option]))
 
     def toJson(self) -> list[str]:
         jsonList = []
@@ -53,9 +68,9 @@ class OptionsList:
 
 def createOptionsList(atoms: FactBase) -> OptionsList:
     oL = OptionsList([])
-    solution = atoms.query(VizContext).select(VizContext.id,VizContext.name).all()
+    solution = atoms.query(VizContext).select(VizContext.id,VizContext.name, VizContext.type).all()
     for s in solution:
-        oL.add(s[0],s[1])
+        oL.add(s[0],Option(s[1],s[2]))
 
     return oL
 
