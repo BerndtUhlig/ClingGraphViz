@@ -2,5 +2,5 @@
     <label>{{inputName}}</label>
     <br>
     <textarea *ngIf="inputType == 'textarea'"></textarea>
-    <input *ngIf="inputType != 'textarea'" [type]="inputType" />
+    <input *ngIf="inputType != 'textarea'" [type]="inputType" [formControl] = "fc" />
 </div>

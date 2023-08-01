@@ -1,4 +1,6 @@
 import { Component, Input } from '@angular/core';
+import { ASPtranslateService } from '../asptranslate.service';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-graph-options',
@@ -8,8 +10,10 @@ import { Component, Input } from '@angular/core';
 export class GraphOptionsComponent {
   @Input() inputType = ''
   @Input() inputName = ''
+  @Input() fc: FormControl = new FormControl('') 
 
-
+  constructor(){}
   
+
 
 }
