@@ -17,13 +17,14 @@ class user_input(Predicate):
     value = StringField
 
 class Option:
-    def __init__(self, type:str, name:str):
+    def __init__(self, type:str, name:str, compType: str):
         self.type = type
         self.name = name
+        self.compType = compType
 
     def __eq__(self, other):
         if isinstance(other, Option):
-            return other.name == self.name and other.type == self.type
+            return other.name == self.name and other.type == self.type and other.compType == self.compType
         else:
             return False
 
