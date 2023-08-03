@@ -4,6 +4,7 @@ export interface Option {
 }
 
 export interface NodeOptions {
-    id: number,
+    id: string,
+    compType: string
     options: Option[]
 }

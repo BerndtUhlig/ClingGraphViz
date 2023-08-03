@@ -3,7 +3,17 @@
     <div class="col left">
         <label>OPTIONS</label>
         <br>
-        <app-graph-options></app-graph-options>
+        <form [formGroup]="optionsForm" (ngSubmit)="submitForm()">
+            <div *ngFor="let option of optionsList">
+                <label>{{option.name}}</label>
+                <br>
+                <textarea *ngIf="option.type == 'textarea'"></textarea>
+                <input *ngIf="option.type != 'textarea'" [type]="option.type" formControlName = "{{option.name}}" />
+            </div>
+            <input type="submit" value="Submit">
+        </form>
     </div>
-    <div class="col right"></div>
+    <div class="col right">
+        <div #svgContainer (click)="handleNodeClick($event)"></div>
+    </div>
 </div>

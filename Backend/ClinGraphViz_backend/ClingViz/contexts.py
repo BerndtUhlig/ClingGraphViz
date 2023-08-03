@@ -17,21 +17,24 @@ class user_input(Predicate):
     value = StringField
 
 class Option:
-    def __init__(self, type:str, name:str, compType: str):
+    def __init__(self, type:str, name:str):
         self.type = type
         self.name = name
-        self.compType = compType
+
 
     def __eq__(self, other):
         if isinstance(other, Option):
-            return other.name == self.name and other.type == self.type and other.compType == self.compType
+            return other.name == self.name and other.type == self.type
         else:
             return False
 
+    def toDict(self):
+        return {"name":self.name, "type":self.type}
 class NodeOptions:
-    def __init__(self, id: int, options: list[Option]):
+    def __init__(self, id: str,  compType: str, options: list[Option]):
         self.id = id
         self.options = options
+        self.compType = compType
 
     def addOption(self, option:Option) -> None:
         for selfOption in self.options:
@@ -40,12 +43,10 @@ class NodeOptions:
 
         self.options.append(option)
 
-    def toJson(self) -> str:
-        try:
-            objJson = json.dumps(self)
-            return objJson
-        except json.JSONDecodeError as err:
-            raise Exception("The nodeOptions object could not be encoded into a json! Error: " + err.msg)
+    def toDict(self):
+        options_list = [option.toDict() for option in self.options]
+        return {"id": self.id, "compType": self.compType, "options": options_list}
+
 
 class OptionsList:
     def __init__(self, options: list[NodeOptions]):
@@ -59,10 +60,10 @@ class OptionsList:
 
         self.options.append(NodeOptions(id,[option]))
 
-    def toJson(self) -> list[str]:
+    def toJson(self):
         jsonList = []
         for item in self.options:
-            jsonItem = item.toJson()
+            jsonItem = item.toDict()
             jsonList.append(jsonItem)
 
         return jsonList

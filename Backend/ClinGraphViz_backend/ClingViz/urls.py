@@ -2,5 +2,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('clingviz/', views.clingviz, name='clingviz'),
+    path('graphUpdate/', views.graphUpdate, name='graphUpdate'),
+    path('mock/', views.mockViz, name='mock'),
 ]

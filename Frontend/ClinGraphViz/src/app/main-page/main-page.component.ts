@@ -15,7 +15,7 @@ export class MainPageComponent implements AfterViewInit {
   @ViewChild("svgContainer")
   svgContainer!:ElementRef;
 
-  optionsForm!: FormGroup
+  optionsForm: FormGroup = new FormGroup({})
   svgString = ""
   type = ""
   nodeOptionsList:NodeOptions[] = []
@@ -26,20 +26,37 @@ export class MainPageComponent implements AfterViewInit {
   }
   ngAfterViewInit(): void {
     let emptyRequest = {"user_input":""} as GraphRequest
-    this.fetchSvg(emptyRequest)
-    this.svgContainer.nativeElement.innerHTML = this.svgString
+    this.svgService.mock(emptyRequest).subscribe({next: (data) => {
+      this.svgString = data.data;
+      this.svgContainer.nativeElement.innerHTML = this.svgString
+      this.nodeOptionsList = data.option_data; 
+    }, error: (err) => {
+      console.log("An error has occured: " + err)
+
+    }})
   }
 
   handleNodeClick(event:Event){
+    console.log("clicked")
     let element = event.target as HTMLElement
     let parent = element.parentNode as HTMLElement
+    console.log(element)
+    console.log(parent)
     if(parent !== null && parent.nodeName == 'g'){
-      if(parent.firstChild !== null && parent.firstChild.nodeName == 'title'){
-        const compId = parent.firstChild.textContent
+      console.log("past first")
+      let title = parent.getElementsByTagName("title")[0]
+      console.log(title)
+      if(title !== null){
+        console.log("past second")
+        const compId = title.textContent
         if(compId !== null && compId !== ""){
           if(parent.id.startsWith("node")){
+            console.log("clicked")
+            this.type = "node"
             this.updateOptions(compId, "node")
           } else if(element.id.startsWith("edge")){
+            console.log("clicked")
+            this.type = "edge"
             this.updateOptions(compId, "edge")
           }
         }
@@ -51,38 +68,46 @@ export class MainPageComponent implements AfterViewInit {
     this.currID = id
     let list = this.nodeOptionsList.filter((val) => {return val.id == id && val.compType == compType})
     if(list.length != 1){
-      console.log(`Something went wrong: There is more than one node/edge with id ${id} in the options list!`)
+      console.log(`Something went wrong: There is more than one or no node/edge with id ${id} in the options list!`)
     } else {
       this.optionsList = list.map(((val) => {return val.options})).flat()
       let group: Record<string, any> = {};
       this.optionsList.forEach((val) => {
         // TODO: Make a differentiation between different initial types (bool, num etc.) if necessary.
-        group[val.name] = [''] 
+        if (val.type == "checkbox"){
+          group[val.name] = [true]
+        } else {
+          group[val.name] = ['']
+        }
+        console.log("NAME VALUE ", val.name)
     })
     this.optionsForm = this.fb.group(group)
   }
 }
 
   submitForm(){
+    console.log("submitted!")
     let asp: string[] = []
     let form = this.optionsForm.value
+    console.log(form)
     this.optionsList.forEach((val) => {
-      const formval = form[val.name]
+      let formval = form[val.name]
+      console.log("FORM VAL: ",formval)
       asp.push(this.aspService.toUserInputASP(this.type,this.currID.toString(),val.type,val.name,formval))
     })
     let aspString:string = asp.join("\n")
-    this.fetchSvg({"user_input":aspString} as GraphRequest)
-  }
-
-  fetchSvg(request:GraphRequest){
-    this.svgService.put(request).subscribe({next: (data) => {
+    this.svgService.mock({"user_input":aspString} as GraphRequest).subscribe({next: (data) => {
+      console.log(data)
       this.svgString = data.data;
+      console.log("svg string ", this.svgString)
+      this.svgContainer.nativeElement.innerHTML = this.svgString
       this.nodeOptionsList = data.option_data; 
     }, error: (err) => {
       console.log("An error has occured: " + err)
 
     }})
   }
+
 
 
   

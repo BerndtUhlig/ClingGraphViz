@@ -6,12 +6,43 @@ from django.http import HttpResponseBadRequest, HttpResponse
 import ast
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from .contexts import OptionsList, VizContext, createOptionsList
+from .contexts import Option, OptionsList, VizContext, createOptionsList, NodeOptions
 from clorm.clingo import Control as ClormControl
 
 
 # Create your views here.
 import json
+
+@require_http_methods(["POST"])
+@csrf_exempt
+def mockViz(request):
+    try:
+        body = json.loads(request.body)
+    except json.JSONDecodeError as e:
+        return HttpResponseBadRequest("An error occured: {msg}".format(msg=e.msg))
+
+    if not "user_input" in body.keys():
+        return HttpResponseBadRequest("The request body did not contain 'user_input'")
+
+    print(body)
+    with open('out/color.svg', 'r') as svg_file:
+        svg_content = svg_file.read()
+
+    optionsList = OptionsList([
+        NodeOptions("1","node", options=[Option(type="checkbox",name="change_color")]),
+        NodeOptions("2","node" , [Option(type="checkbox", name="change_colores")]),
+        NodeOptions("3","node", [Option(type="checkbox", name="change_shape")]),
+        NodeOptions("4","node", [Option(type="checkbox", name="change_color")]),
+        NodeOptions("5","node", [Option(type="checkbox", name="change_color")]),
+        NodeOptions("6","node", [Option(type="checkbox", name="change_color")]),
+    ])
+
+    raw = {"data":svg_content, "option_data": optionsList.toJson()}
+    js = json.dumps(raw)
+    return HttpResponse(js, content_type='application/json', status=200)
+
+
+
 
 @require_http_methods(["PUT"])
 @csrf_exempt

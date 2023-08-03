@@ -28,5 +28,20 @@ export class SvgServiceService {
         })
       );
       return resp; 
-    } 
+    }
+    
+    mock(graphRequest:GraphRequest): Observable<GraphResponse> {
+      const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
+      const options = { headers }
+      const resp = this.http.post<GraphRequest>(this.backend_URI+"/mock/",graphRequest,{...headers})
+      
+      .pipe(
+        catchError((error,caught) => {
+          // Handle the error here (e.g., log it or throw a custom error)
+          console.error('Error occurred during the HTTP request:', error);
+          return of(error)
+        })
+      );
+      return resp;
+    }
 }
