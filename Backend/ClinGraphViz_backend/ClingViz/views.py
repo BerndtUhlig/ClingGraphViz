@@ -29,12 +29,12 @@ def mockViz(request):
         svg_content = svg_file.read()
 
     optionsList = OptionsList([
-        NodeOptions("1","node", options=[Option(type="checkbox",name="change_color")]),
-        NodeOptions("2","node" , [Option(type="checkbox", name="change_colores")]),
-        NodeOptions("3","node", [Option(type="checkbox", name="change_shape")]),
-        NodeOptions("4","node", [Option(type="checkbox", name="change_color")]),
-        NodeOptions("5","node", [Option(type="checkbox", name="change_color")]),
-        NodeOptions("6","node", [Option(type="checkbox", name="change_color")]),
+        NodeOptions("1","node", options=[Option(type="text",name="change_color", state="hi"), Option(type="checkbox",name="change_child",state=False)]),
+        NodeOptions("2","node" , [Option(type="checkbox", name="change_colores", state=False)]),
+        NodeOptions("3","node", [Option(type="checkbox", name="change_shape", state=True)]),
+        NodeOptions("4","node", [Option(type="checkbox", name="change_color", state=False)]),
+        NodeOptions("5","node", [Option(type="checkbox", name="change_color", state=True)]),
+        NodeOptions("6","node", [Option(type="checkbox", name="change_color", state=False)]),
     ])
 
     raw = {"data":svg_content, "option_data": optionsList.toJson()}

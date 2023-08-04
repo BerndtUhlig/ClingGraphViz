@@ -1,13 +1,14 @@
 import json
 
 from clorm import Predicate, ConstantField, IntegerField, refine_field, StringField, FactBase
-
+from typing import Any
 
 class VizContext(Predicate):
     node = refine_field(ConstantField, ["node","edge"])
     id = IntegerField
     type = refine_field(ConstantField, ["checkbox","text"]) # TODO: Add the other HTML input types.
-    name = StringField
+    name = StringField,
+    value = StringField
 
 class user_input(Predicate):
     node = refine_field(ConstantField, ["node","edge"])
@@ -17,9 +18,10 @@ class user_input(Predicate):
     value = StringField
 
 class Option:
-    def __init__(self, type:str, name:str):
+    def __init__(self, type:str, name:str, state:Any):
         self.type = type
         self.name = name
+        self.state = state
 
 
     def __eq__(self, other):
@@ -29,7 +31,7 @@ class Option:
             return False
 
     def toDict(self):
-        return {"name":self.name, "type":self.type}
+        return {"name":self.name, "type":self.type, "state":self.state}
 class NodeOptions:
     def __init__(self, id: str,  compType: str, options: list[Option]):
         self.id = id
@@ -70,9 +72,9 @@ class OptionsList:
 
 def createOptionsList(atoms: FactBase) -> OptionsList:
     oL = OptionsList([])
-    solution = atoms.query(VizContext).select(VizContext.id,VizContext.name, VizContext.type).all()
+    solution = atoms.query(VizContext).select(VizContext.id,VizContext.name, VizContext.type, VizContext.value).all()
     for s in solution:
-        oL.add(s[0],Option(s[1],s[2]))
+        oL.add(s[0], Option(s[1], s[2], s[3]))
 
     return oL
 
