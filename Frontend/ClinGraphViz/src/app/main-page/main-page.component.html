@@ -7,8 +7,9 @@
             <div *ngFor="let option of optionsList">
                 <label>{{option.name}}</label>
                 <br>
-                <textarea *ngIf="option.type == 'textarea'"></textarea>
-                <input *ngIf="option.type != 'textarea'" [type]="option.type" formControlName = "{{option.name}}" />
+                <textarea id="{{option.name + '_' + this.currID}}" *ngIf="option.type == 'textarea'" [formControlName]="option.name"></textarea>
+                <input id="{{option.name + '_' + this.currID}}" *ngIf="option.type != 'textarea' && option.type != 'checkbox'" [type]="option.type" [formControlName]="option.name" (click)="checkClick($event)"/>
+                <input id="{{option.name + '_' + this.currID}}" *ngIf="option.type == 'checkbox'" type="checkbox" [formControlName]="option.name" (click)="checkClick($event)"/>
             </div>
             <input type="submit" value="Submit">
         </form>

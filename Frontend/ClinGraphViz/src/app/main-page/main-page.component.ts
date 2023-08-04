@@ -64,24 +64,42 @@ export class MainPageComponent implements AfterViewInit {
     }
   }
 
+  checkClick(event:Event){
+    console.log("clicked box")
+    let target = (event.target as HTMLElement)
+    console.log(target.getAttribute("value"))
+    console.log(target.getAttribute("checked"))
+  }
+
+
+
   updateOptions(id:string, compType:string){
+    this.optionsList.forEach((val) => {
+      val.state = this.optionsForm.value[val.name]
+    })
     this.currID = id
     let list = this.nodeOptionsList.filter((val) => {return val.id == id && val.compType == compType})
     if(list.length != 1){
       console.log(`Something went wrong: There is more than one or no node/edge with id ${id} in the options list!`)
     } else {
       this.optionsList = list.map(((val) => {return val.options})).flat()
+      let group = new FormGroup({})
+      this.optionsList.forEach((val) => {
+        group.addControl(val.name,new FormControl(val.state))
+      })
+      /* 
       let group: Record<string, any> = {};
       this.optionsList.forEach((val) => {
         // TODO: Make a differentiation between different initial types (bool, num etc.) if necessary.
-        if (val.type == "checkbox"){
-          group[val.name] = [true]
-        } else {
-          group[val.name] = ['']
-        }
+        console.log("val: ", val.state, val.name, val.type)
+        group[val.name] = new FormControl(val.state)
         console.log("NAME VALUE ", val.name)
     })
-    this.optionsForm = this.fb.group(group)
+    */
+    this.optionsForm = group
+    console.log(this.nodeOptionsList)
+    //console.log(this.optionsForm)
+    //console.log(this.testFG)
   }
 }
 
@@ -91,17 +109,20 @@ export class MainPageComponent implements AfterViewInit {
     let form = this.optionsForm.value
     console.log(form)
     this.optionsList.forEach((val) => {
-      let formval = form[val.name]
-      console.log("FORM VAL: ",formval)
-      asp.push(this.aspService.toUserInputASP(this.type,this.currID.toString(),val.type,val.name,formval))
-    })
+        val.state = form[val.name]
+      })
+    this.nodeOptionsList.forEach((val) => {val.options.forEach((opt) => {
+      asp.push(this.aspService.toUserInputASP(val.compType,val.id,opt.type,opt.name,opt.state))
+    })})
     let aspString:string = asp.join("\n")
     this.svgService.mock({"user_input":aspString} as GraphRequest).subscribe({next: (data) => {
       console.log(data)
       this.svgString = data.data;
-      console.log("svg string ", this.svgString)
       this.svgContainer.nativeElement.innerHTML = this.svgString
       this.nodeOptionsList = data.option_data; 
+      console.log(this.nodeOptionsList)
+      this.optionsList = []
+      this.updateOptions(this.currID,this.type)
     }, error: (err) => {
       console.log("An error has occured: " + err)
 
