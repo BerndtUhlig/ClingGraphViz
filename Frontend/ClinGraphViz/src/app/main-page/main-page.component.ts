@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import { SvgServiceService } from '../svg-service.service';
 import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { GraphRequest, GraphResponse } from '../types/messageTypes';
-import { NodeOptions, Option } from '../types/options';
+import { NodeOptions, Input_Option, Select_Option } from '../types/options';
 import { ASPtranslateService } from '../asptranslate.service';
 
 @Component({
@@ -20,7 +20,7 @@ export class MainPageComponent implements AfterViewInit {
   type = ""
   nodeOptionsList:NodeOptions[] = []
   currID: string = ""
-  optionsList: Option[] = []
+  optionsList: (Input_Option|Select_Option)[] = []
 
   constructor(private svgService: SvgServiceService, private fb:FormBuilder, private aspService:ASPtranslateService){
   }
@@ -34,6 +34,14 @@ export class MainPageComponent implements AfterViewInit {
       console.log("An error has occured: " + err)
 
     }})
+  }
+
+  retrieveSelectOptions(opt:(Input_Option|Select_Option)){
+    if("options" in opt){
+      return opt.options
+    } else {
+      return []
+    }
   }
 
   handleNodeClick(event:Event){

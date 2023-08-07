@@ -1,12 +1,11 @@
 import os
-
 import clingo
 import clingraph
 from django.http import HttpResponseBadRequest, HttpResponse
 import ast
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from .contexts import Option, OptionsList, VizContext, createOptionsList, NodeOptions
+from .contexts import Input_Option, OptionsList, VizContext, createOptionsList, NodeOptions, Select_Option
 from clorm.clingo import Control as ClormControl
 
 
@@ -28,13 +27,15 @@ def mockViz(request):
     with open('out/color.svg', 'r') as svg_file:
         svg_content = svg_file.read()
 
+    opt = Select_Option(name="select_color", state="Green", options=["Blue","Green","Red"])
+    print(opt.type)
     optionsList = OptionsList([
-        NodeOptions("1","node", options=[Option(type="text",name="change_color", state="hi"), Option(type="checkbox",name="change_child",state=False)]),
-        NodeOptions("2","node" , [Option(type="checkbox", name="change_colores", state=False)]),
-        NodeOptions("3","node", [Option(type="checkbox", name="change_shape", state=True)]),
-        NodeOptions("4","node", [Option(type="checkbox", name="change_color", state=False)]),
-        NodeOptions("5","node", [Option(type="checkbox", name="change_color", state=True)]),
-        NodeOptions("6","node", [Option(type="checkbox", name="change_color", state=False)]),
+        NodeOptions("1","node", options=[Input_Option(type="text", name="change_color", state="hi"), Select_Option(name="select_color", state="Green", options=["Blue","Green","Red"])]),
+        NodeOptions("2","node", [Input_Option(type="checkbox", name="change_colores", state=False)]),
+        NodeOptions("3","node", [Input_Option(type="checkbox", name="change_shape", state=True)]),
+        NodeOptions("4","node", [Input_Option(type="checkbox", name="change_color", state=False)]),
+        NodeOptions("5","node", [Input_Option(type="checkbox", name="change_color", state=True)]),
+        NodeOptions("6","node", [Input_Option(type="checkbox", name="change_color", state=False)]),
     ])
 
     raw = {"data":svg_content, "option_data": optionsList.toJson()}
