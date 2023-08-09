@@ -10,5 +10,11 @@ edge(
 color(red; green; blue).
 
 { assign(N, C) : color(C) } = 1 :- node(N).
-assign(N,C) :- color(C), node(N), user_input("node",N,select,"select_color",C)
+
 :- edge((N, M)), assign(N, C), assign(M, C).
+
+#show node/1.
+#show edge/1.
+#show assign/2.
+#show attr(node, N, style, filled): node(N).
+#show attr(node, N, color, C) : assign(N, C).

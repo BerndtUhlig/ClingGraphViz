@@ -3,25 +3,25 @@ import json
 from clorm import Predicate, ConstantField, IntegerField, refine_field, StringField, FactBase
 from typing import Any, Union
 
-class VizContext(Predicate):
+class Option_Context(Predicate):
     node = refine_field(ConstantField, ["node","edge"])
     id = IntegerField
     type = refine_field(ConstantField, ["checkbox","text","select"]) # TODO: Add the other HTML input types.
-    name = StringField,
-    value = StringField
+    name = StringField
+    value = ConstantField
 
 class User_Input(Predicate):
     node = refine_field(ConstantField, ["node","edge"])
     id = IntegerField
     type = refine_field(ConstantField, ["checkbox", "text", "select"])  # TODO: Add the other HTML input types.
     name = StringField
-    value = StringField
+    value = ConstantField
 
-class Select_Option_ASP:
+class Select_Option(Predicate):
     name = StringField
-    value = StringField
+    value = ConstantField
 
-class Select_Option:
+class Select_Option_Class:
     def __init__(self, name:str, state:Any, options:[str]):
         self.name = name
         self.type = "select"
@@ -30,7 +30,7 @@ class Select_Option:
 
 
     def __eq__(self, other):
-        if isinstance(other, Select_Option):
+        if isinstance(other, Select_Option_Class):
             return other.name == self.name
         else:
             return False
@@ -54,12 +54,12 @@ class Input_Option:
     def toDict(self):
         return {"name":self.name, "type":self.type, "state":self.state}
 class NodeOptions:
-    def __init__(self, id: str, compType: str, options: list[Union[Input_Option,Select_Option]]):
+    def __init__(self, id: str, compType: str, options: list[Union[Input_Option,Select_Option_Class]]):
         self.id = id
         self.options = options
         self.compType = compType
 
-    def addOption(self, option:Union[Input_Option,Select_Option]) -> None:
+    def addOption(self, option:Union[Input_Option,Select_Option_Class]) -> None:
         for selfOption in self.options:
             if selfOption == option:
                 return
@@ -75,13 +75,13 @@ class OptionsList:
     def __init__(self, options: list[NodeOptions]):
         self.options = options
 
-    def add(self, id:int, option:Union[Input_Option,Select_Option]):
+    def add(self, id:int, compType:str, option:Union[Input_Option,Select_Option_Class]):
         for opt in self.options:
             if opt.id == id:
                 opt.addOption(option)
                 return
 
-        self.options.append(NodeOptions(id,[option]))
+        self.options.append(NodeOptions(str(id),compType, [option]))
 
     def toJson(self):
         jsonList = []
@@ -93,17 +93,17 @@ class OptionsList:
 
 def createOptionsList(atoms: FactBase) -> OptionsList:
     oL = OptionsList([])
-    solution = atoms.query(VizContext).select(VizContext.id,VizContext.name, VizContext.type, VizContext.value).all()
+    solution = atoms.query(Option_Context).select(Option_Context.id, Option_Context.name, Option_Context.type, Option_Context.value, Option_Context.node ).all()
     for s in solution:
-        if(s[2] == "select"):
-            selOpt_solutions = atoms.query(Select_Option_ASP).select(Select_Option_ASP.name,Select_Option_ASP.value).all()
+        if s[2] == "select":
+            selOpt_solutions = atoms.query(Select_Option).select(Select_Option.name, Select_Option.value).all()
             selOpts = []
             for o in selOpt_solutions:
-                if(o[0] == s[1]):
+                if o[0] == s[1]:
                     selOpts.append(o[1])
-            oL.add(s[0],Select_Option(s[1],s[3],selOpts))
+            oL.add(s[0], s[4], Select_Option_Class(s[1], s[3], selOpts))
         else:
-            oL.add(s[0], Input_Option(s[1], s[2], s[3]))
+            oL.add(s[0], s[4], Input_Option(s[1], s[2], s[3]))
 
 
     return oL

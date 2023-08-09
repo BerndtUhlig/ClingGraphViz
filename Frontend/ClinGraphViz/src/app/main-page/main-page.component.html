@@ -18,6 +18,8 @@
         </form>
     </div>
     <div class="col right">
+        <h2 *ngIf="errStr.length > 0" style="color: red;">{{errStr}}</h2>
         <div #svgContainer (click)="handleNodeClick($event)"></div>
+        <h2 *ngIf="svgString.length <= 0">No graph was created from your request.</h2>
     </div>
 </div>

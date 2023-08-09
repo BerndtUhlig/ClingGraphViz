@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import { GraphRequest, GraphResponse } from './types/messageTypes';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs/internal/Observable';
 import { of } from 'rxjs/internal/observable/of';
+import { throwError } from 'rxjs/internal/observable/throwError';
 
 @Injectable({
   providedIn: 'root'
@@ -18,13 +19,13 @@ export class SvgServiceService {
     put(graphRequest:GraphRequest): Observable<GraphResponse>{
       const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
       const options = { headers }
-      const resp = this.http.put<GraphRequest>(this.backend_URI+"/clingviz/",graphRequest,{...headers})
+      const resp = this.http.put<GraphResponse>(this.backend_URI+"/graphUpdate/",graphRequest,{...headers})
       
       .pipe(
-        catchError((error,caught) => {
+        catchError((error:HttpErrorResponse,caught) => {
           // Handle the error here (e.g., log it or throw a custom error)
           console.error('Error occurred during the HTTP request:', error);
-          return of(error)
+          return throwError(() => new Error(error.error)); 
         })
       );
       return resp; 

@@ -21,12 +21,13 @@ export class MainPageComponent implements AfterViewInit {
   nodeOptionsList:NodeOptions[] = []
   currID: string = ""
   optionsList: (Input_Option|Select_Option)[] = []
+  errStr: string = ""
 
   constructor(private svgService: SvgServiceService, private fb:FormBuilder, private aspService:ASPtranslateService){
   }
   ngAfterViewInit(): void {
     let emptyRequest = {"user_input":""} as GraphRequest
-    this.svgService.mock(emptyRequest).subscribe({next: (data) => {
+    this.svgService.put(emptyRequest).subscribe({next: (data) => {
       this.svgString = data.data;
       this.svgContainer.nativeElement.innerHTML = this.svgString
       this.nodeOptionsList = data.option_data; 
@@ -113,6 +114,7 @@ export class MainPageComponent implements AfterViewInit {
 
   submitForm(){
     console.log("submitted!")
+    this.errStr = ""
     let asp: string[] = []
     let form = this.optionsForm.value
     console.log(form)
@@ -123,7 +125,7 @@ export class MainPageComponent implements AfterViewInit {
       asp.push(this.aspService.toUserInputASP(val.compType,val.id,opt.type,opt.name,opt.state))
     })})
     let aspString:string = asp.join("\n")
-    this.svgService.mock({"user_input":aspString} as GraphRequest).subscribe({next: (data) => {
+    this.svgService.put({"user_input":aspString} as GraphRequest).subscribe({next: (data) => {
       console.log(data)
       this.svgString = data.data;
       this.svgContainer.nativeElement.innerHTML = this.svgString
@@ -132,7 +134,7 @@ export class MainPageComponent implements AfterViewInit {
       this.optionsList = []
       this.updateOptions(this.currID,this.type)
     }, error: (err) => {
-      console.log("An error has occured: " + err)
+      this.errStr = err.message
 
     }})
   }
