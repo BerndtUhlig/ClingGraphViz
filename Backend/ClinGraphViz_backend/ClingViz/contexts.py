@@ -103,7 +103,7 @@ def createOptionsList(atoms: FactBase) -> OptionsList:
                     selOpts.append(o[1])
             oL.add(s[0], s[4], Select_Option_Class(s[1], s[3], selOpts))
         else:
-            oL.add(s[0], s[4], Input_Option(s[1], s[2], s[3]))
+            oL.add(s[0], s[4], Input_Option(s[2],s[1], s[3]))
 
 
     return oL

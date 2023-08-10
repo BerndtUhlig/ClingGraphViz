@@ -1,6 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { ASPtranslateService } from '../asptranslate.service';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
+import { Input_Option, Select_Option } from '../types/options';
 
 @Component({
   selector: 'app-graph-options',
@@ -8,12 +9,25 @@ import { FormControl } from '@angular/forms';
   styleUrls: ['./graph-options.component.scss']
 })
 export class GraphOptionsComponent {
-  @Input() inputType = ''
-  @Input() inputName = ''
-  @Input() fc: FormControl = new FormControl('') 
+  @Input() optionsList!:(Input_Option|Select_Option)[]
+  @Input() optionsForm!:FormGroup
+  @Input() compID:string = ""
+  @Output() submitEvent = new EventEmitter<string>()
 
   constructor(){}
-  
+
+
+  retrieveSelectOptions(opt:(Input_Option|Select_Option)){
+    if("options" in opt){
+      return opt.options
+    } else {
+      return []
+    }
+  }
+
+  submitForm(){
+    this.submitEvent.emit("");
+  }
 
 
 }

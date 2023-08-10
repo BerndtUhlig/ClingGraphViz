@@ -65,7 +65,8 @@ def graphUpdate(request):
     models = []
     with ctl.solve(yield_=True) as handle:
         for model in handle:
-            models.append(str(model))
+            symbols = model.symbols(atoms=True)
+            models.append([str(symbol) for symbol in symbols])
 
     if len(models) <= 0:
         if len(user_input) > 0:
@@ -73,12 +74,12 @@ def graphUpdate(request):
         else:
             return HttpResponseBadRequest("There are no solutions to your program!")
 
-    modelString = ".\n".join(models[0].split(" "))+"."
+    modelString = ".\n".join(models[0])+"."
     print(modelString)
     ctl = clingo.Control()
     ctl.add(modelString)
     ctl.load("./ClingViz/encodings/encoding.lp")
-    ctl.ground()
+    ctl.ground(context=clingraph.clingo_utils.ClingraphContext())
     fb = clingraph.Factbase()
     with ctl.solve(yield_=True) as handle:
         for model in handle:

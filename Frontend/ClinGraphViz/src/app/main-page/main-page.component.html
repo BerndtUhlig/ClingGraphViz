@@ -3,19 +3,7 @@
     <div class="col left">
         <label>OPTIONS</label>
         <br>
-        <form [formGroup]="optionsForm" (ngSubmit)="submitForm()">
-            <div *ngFor="let option of optionsList">
-                <label>{{option.name}}</label>
-                <br>
-                <textarea id="{{option.name + '_' + this.currID}}" *ngIf="option.type == 'textarea'" [formControlName]="option.name"></textarea>
-                <input id="{{option.name + '_' + this.currID}}" *ngIf="option.type == 'checkbox'" type="checkbox" [formControlName]="option.name" (click)="checkClick($event)"/>
-                <input id="{{option.name + '_' + this.currID}}" *ngIf="option.type != 'textarea' && option.type != 'checkbox' && option.type != 'select'" [type]="option.type" [formControlName]="option.name" (click)="checkClick($event)"/>
-                <select id="{{option.name + '_' + this.currID}}" *ngIf="option.type == 'select'" [formControlName]="option.name">
-                    <option *ngFor="let val of retrieveSelectOptions(option)" value="{{val}}">{{val}}</option>
-                </select>
-            </div>
-            <input type="submit" value="Submit">
-        </form>
+        <app-graph-options [optionsList]="optionsList"  [optionsForm]="optionsForm" [compID]="this.currID" (submitEvent)="submitForm()"></app-graph-options>
     </div>
     <div class="col right">
         <h2 *ngIf="errStr.length > 0" style="color: red;">{{errStr}}</h2>
