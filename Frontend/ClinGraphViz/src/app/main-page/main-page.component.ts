@@ -31,8 +31,12 @@ export class MainPageComponent implements AfterViewInit {
       this.svgString = data.data;
       this.svgContainer.nativeElement.innerHTML = this.svgString
       this.nodeOptionsList = data.option_data; 
+      console.log("NodeOptions after init:", this.nodeOptionsList)
+      console.log("form after init: ",this.optionsForm)
     }, error: (err) => {
       console.log("An error has occured: " + err)
+      this.errStr = err.message
+
 
     }})
   }
@@ -60,7 +64,7 @@ export class MainPageComponent implements AfterViewInit {
         const compId = title.textContent
         if(compId !== null && compId !== ""){
           if(parent.id.startsWith("node")){
-            console.log("clicked")
+            console.log("clicked node with ID: ", compId)
             this.type = "node"
             this.updateOptions(compId, "node")
           } else if(element.id.startsWith("edge")){
@@ -78,6 +82,7 @@ export class MainPageComponent implements AfterViewInit {
     let target = (event.target as HTMLElement)
     console.log(target.getAttribute("value"))
     console.log(target.getAttribute("checked"))
+    console.log("form: ",this.optionsForm)
   }
 
 
@@ -90,12 +95,19 @@ export class MainPageComponent implements AfterViewInit {
     let list = this.nodeOptionsList.filter((val) => {return val.id == id && val.compType == compType})
     if(list.length != 1){
       console.log(`Something went wrong: There is more than one or no node/edge with id ${id} in the options list!`)
+      this.errStr = `Something went wrong: There is more than one or no node/edge with id ${id} in the options list!`
     } else {
       this.optionsList = list.map(((val) => {return val.options})).flat()
       let group = new FormGroup({})
       this.optionsList.forEach((val) => {
-        group.addControl(val.name,new FormControl(val.state))
+        if(val.type == "checkbox"){
+          let check = val.state == "true" || val.state == true ? true : false
+          group.addControl(val.name,new FormControl(check))
+        } else {
+          group.addControl(val.name,new FormControl(val.state))
+        }
       })
+
       /* 
       let group: Record<string, any> = {};
       this.optionsList.forEach((val) => {
@@ -106,6 +118,7 @@ export class MainPageComponent implements AfterViewInit {
     })
     */
     this.optionsForm = group
+    console.log("form after update: ",this.optionsForm)
     console.log(this.nodeOptionsList)
     //console.log(this.optionsForm)
     //console.log(this.testFG)
@@ -117,7 +130,7 @@ export class MainPageComponent implements AfterViewInit {
     this.errStr = ""
     let asp: string[] = []
     let form = this.optionsForm.value
-    console.log(form)
+    console.log("Form: ", form)
     this.optionsList.forEach((val) => {
         val.state = form[val.name]
       })
@@ -126,14 +139,16 @@ export class MainPageComponent implements AfterViewInit {
     })})
     let aspString:string = asp.join("\n")
     this.svgService.put({"user_input":aspString} as GraphRequest).subscribe({next: (data) => {
+      console.log("Were in data!")
       console.log(data)
       this.svgString = data.data;
       this.svgContainer.nativeElement.innerHTML = this.svgString
       this.nodeOptionsList = data.option_data; 
-      console.log(this.nodeOptionsList)
+      console.log("node options after response of form submit: ", this.nodeOptionsList)
       this.optionsList = []
       this.updateOptions(this.currID,this.type)
     }, error: (err) => {
+      console.log("Error here: " , err)
       this.errStr = err.message
 
     }})

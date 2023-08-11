@@ -17,6 +17,8 @@ export class GraphOptionsComponent {
   constructor(){}
 
 
+
+
   retrieveSelectOptions(opt:(Input_Option|Select_Option)){
     if("options" in opt){
       return opt.options
