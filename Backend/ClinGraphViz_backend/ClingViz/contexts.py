@@ -7,7 +7,7 @@ class Option_Context(Predicate):
     node = refine_field(ConstantField, ["node","edge"])
     id = IntegerField
     type = refine_field(ConstantField, ["checkbox","text","select"]) # TODO: Add the other HTML input types.
-    name = StringField
+    name = ConstantField
     value = ConstantField
 
 class User_Input(Predicate):
