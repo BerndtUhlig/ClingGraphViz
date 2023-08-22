@@ -66,7 +66,7 @@ def graphUpdate(request):
         models = []
         with ctl.solve(yield_=True) as handle:
             for model in handle:
-                symbols = model.symbols(atoms=True)
+                symbols = model.symbols(atoms=True, terms=True)
                 models.append([str(symbol) for symbol in symbols])
 
         if len(models) <= 0:
