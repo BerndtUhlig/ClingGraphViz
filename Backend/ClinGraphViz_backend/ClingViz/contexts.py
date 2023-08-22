@@ -14,11 +14,11 @@ class User_Input(Predicate):
     node = refine_field(ConstantField, ["node","edge"])
     id = IntegerField
     type = refine_field(ConstantField, ["checkbox", "text", "select"])  # TODO: Add the other HTML input types.
-    name = StringField
+    name = ConstantField
     value = ConstantField
 
 class Select_Option(Predicate):
-    name = StringField
+    name = ConstantField
     value = ConstantField
 
 class Select_Option_Class:
