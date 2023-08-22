@@ -3,7 +3,7 @@
     <div class="col left">
         <label>OPTIONS</label>
         <br>
-        <app-graph-options [optionsList]="optionsList"  [optionsForm]="optionsForm" [compID]="this.currID" (submitEvent)="submitForm()"></app-graph-options>
+        <app-graph-options [optionsList]="optionsList" [optionsForm]="optionsForm" [compID]="currID" (submitEvent)="submitForm()"></app-graph-options>
     </div>
     <div class="col right">
         <h2 *ngIf="errStr.length > 0" style="color: red;">{{errStr}}</h2>

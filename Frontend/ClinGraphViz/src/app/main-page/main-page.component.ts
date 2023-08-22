@@ -26,8 +26,7 @@ export class MainPageComponent implements AfterViewInit {
   constructor(private svgService: SvgServiceService, private fb:FormBuilder, private aspService:ASPtranslateService){
   }
   ngAfterViewInit(): void {
-    let emptyRequest = {"user_input":""} as GraphRequest
-    this.svgService.put(emptyRequest).subscribe({next: (data) => {
+    this.svgService.put({user_input:""} as GraphRequest).subscribe({next: (data) => {
       this.svgString = data.data;
       this.svgContainer.nativeElement.innerHTML = this.svgString
       this.nodeOptionsList = data.option_data; 
@@ -138,7 +137,9 @@ export class MainPageComponent implements AfterViewInit {
       asp.push(this.aspService.toUserInputASP(val.compType,val.id,opt.type,opt.name,opt.state))
     })})
     let aspString:string = asp.join("\n")
-    this.svgService.put({"user_input":aspString} as GraphRequest).subscribe({next: (data) => {
+    let req = {"user_input":aspString}
+    console.log(req)
+    this.svgService.put(req as GraphRequest).subscribe({next: (data) => {
       console.log("Were in data!")
       console.log(data)
       this.svgString = data.data;

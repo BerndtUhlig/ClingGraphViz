@@ -8,7 +8,6 @@ from django.views.decorators.http import require_http_methods
 from .contexts import Input_Option, OptionsList, Option_Context, createOptionsList, NodeOptions, Select_Option_Class, Select_Option
 from clorm.clingo import Control as ClormControl
 from .loggerCallback import ClingoLogger
-# Create your views here.
 import json
 
 @require_http_methods(["POST"])
@@ -67,7 +66,7 @@ def graphUpdate(request):
         models = []
         with ctl.solve(yield_=True) as handle:
             for model in handle:
-                symbols = model.symbols(shown=True)
+                symbols = model.symbols(atoms=True)
                 models.append([str(symbol) for symbol in symbols])
 
         if len(models) <= 0:
@@ -80,7 +79,7 @@ def graphUpdate(request):
             "An error occurred while solving/grounding your program and user input: " + str(e) + "\n" + "Particular: " + ClingoLogger.errorString())
 
     modelString = ".\n".join(models[0])+"."
-    print("Model:", modelString)
+    print("Model: \n", modelString)
     try:
         ctl = clingo.Control(logger=ClingoLogger.logger)
         ctl.add(modelString)

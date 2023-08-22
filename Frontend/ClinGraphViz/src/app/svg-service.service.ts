@@ -16,11 +16,9 @@ export class SvgServiceService {
 
     private backend_URI = "http://localhost:8000"
 
+
     put(graphRequest:GraphRequest): Observable<GraphResponse>{
-      const headers = new HttpHeaders({ 'Content-Type': 'application/json' });
-      const options = { headers }
-      const resp = this.http.put<GraphResponse>(this.backend_URI+"/graphUpdate/",graphRequest,{...headers})
-      
+      const resp = this.http.put<GraphResponse>(this.backend_URI+"/graphUpdate/",graphRequest)
       .pipe(
         catchError((error:HttpErrorResponse,caught) => {
           // Handle the error here (e.g., log it or throw a custom error)
