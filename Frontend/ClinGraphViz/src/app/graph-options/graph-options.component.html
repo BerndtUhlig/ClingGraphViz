@@ -1,6 +1,8 @@
 <div>
     <form [formGroup]="optionsForm" (ngSubmit)="submitForm()">
         <div *ngFor="let option of optionsList">
+            <label>ID: {{this.compID}}</label>
+            <br>
             <label>{{option.name}}</label>
             <br>
             <textarea id="{{option.name + '_' + this.compID}}" *ngIf="option.type == 'textarea'"

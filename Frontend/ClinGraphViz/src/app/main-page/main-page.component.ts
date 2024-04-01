@@ -4,6 +4,8 @@ import { FormGroup, FormBuilder, FormControl, Validators } from '@angular/forms'
 import { GraphRequest, GraphResponse } from '../types/messageTypes';
 import { NodeOptions, Input_Option, Select_Option } from '../types/options';
 import { ASPtranslateService } from '../asptranslate.service';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { isEmpty } from 'rxjs';
 
 @Component({
   selector: 'app-main-page',
@@ -16,18 +18,19 @@ export class MainPageComponent implements AfterViewInit {
   svgContainer!:ElementRef;
 
   optionsForm: FormGroup = new FormGroup({})
-  svgString = ""
+  svgString:string = "";
+  solutionSvgs:SafeHtml[] = []
   type = ""
   nodeOptionsList:NodeOptions[] = []
   currID: string = ""
   optionsList: (Input_Option|Select_Option)[] = []
   errStr: string = ""
 
-  constructor(private svgService: SvgServiceService, private fb:FormBuilder, private aspService:ASPtranslateService){
+  constructor(private domSanitizer: DomSanitizer, private svgService: SvgServiceService, private fb:FormBuilder, private aspService:ASPtranslateService){
   }
   ngAfterViewInit(): void {
     this.svgService.put({user_input:""} as GraphRequest).subscribe({next: (data) => {
-      this.svgString = data.data;
+      this.svgString = data.data[0];
       this.svgContainer.nativeElement.innerHTML = this.svgString
       this.nodeOptionsList = data.option_data; 
       console.log("NodeOptions after init:", this.nodeOptionsList)
@@ -142,17 +145,32 @@ export class MainPageComponent implements AfterViewInit {
     this.svgService.put(req as GraphRequest).subscribe({next: (data) => {
       console.log("Were in data!")
       console.log(data)
-      this.svgString = data.data;
+      this.svgString = data.data[0];
+      this.addToSvgList(data.data.slice(1));
+      console.log("Other svgs: ");
+      console.log(this.solutionSvgs);
       this.svgContainer.nativeElement.innerHTML = this.svgString
       this.nodeOptionsList = data.option_data; 
       console.log("node options after response of form submit: ", this.nodeOptionsList)
       this.optionsList = []
-      this.updateOptions(this.currID,this.type)
+      if(this.currID !== ""){
+        this.updateOptions(this.currID,this.type)
+      }
     }, error: (err) => {
       console.log("Error here: " , err)
       this.errStr = err.message
 
     }})
+  }
+
+
+  private addToSvgList(list:string[]){
+    this.solutionSvgs = []; 
+    for(let item of list){
+      console.log("ITEM ")
+      console.log(item)
+      this.solutionSvgs.push(this.domSanitizer.bypassSecurityTrustHtml(item));
+    }
   }
 
 

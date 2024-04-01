@@ -6,8 +6,16 @@
         <app-graph-options [optionsList]="optionsList" [optionsForm]="optionsForm" [compID]="currID" (submitEvent)="submitForm()"></app-graph-options>
     </div>
     <div class="col right">
+        <div id="primaryGraph">
         <h2 *ngIf="errStr.length > 0" style="color: red;">{{errStr}}</h2>
         <div #svgContainer (click)="handleNodeClick($event)"></div>
         <h2 *ngIf="svgString.length <= 0">No graph was created from your request.</h2>
+        <div>
+        <div id="solutionGraphs" *ngIf="solutionSvgs.length > 0">
+        <h2>Additional solutions</h2>
+        <div *ngFor="let svg of solutionSvgs">
+            <div [innerHTML]="svg"></div>
+        </div>
+    </div>
     </div>
 </div>

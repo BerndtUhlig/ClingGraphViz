@@ -5,6 +5,6 @@ export interface GraphRequest {
 }
 
 export interface GraphResponse {
-    data: string,
+    data: string[],
     option_data: NodeOptions[]
 }
