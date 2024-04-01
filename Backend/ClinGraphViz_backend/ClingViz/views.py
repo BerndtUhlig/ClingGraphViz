@@ -55,7 +55,7 @@ def graphUpdate(request):
     user_input = body["user_input"]
     print("User Input: " + user_input)
     try:
-        ctl = clingo.Control(logger=ClingoLogger.logger)
+        ctl = clingo.Control(logger=ClingoLogger.logger, arguments=["--models=0"])
         ctl.load("./ClingViz/encodings/program.lp")
 
         if len(user_input) > 0:
@@ -78,33 +78,44 @@ def graphUpdate(request):
         return HttpResponseServerError(
             "An error occurred while solving/grounding your program and user input: " + str(e) + "\n" + "Particular: " + ClingoLogger.errorString())
 
-    modelString = ".\n".join(models[0])+"."
-    print("Model: \n", modelString)
+    modelStrings = []
+    for model in models:
+        mstr:str = ".\n".join(model) + "."
+        modelStrings.append(mstr)
+
+    for i in range(len(modelStrings)):
+        print("Model No." + str((i+1)) + ":\n")
+        print(modelStrings[i])
+
+    fb = []
     try:
-        ctl = clingo.Control(logger=ClingoLogger.logger)
-        ctl.add(modelString)
-        ctl.load("./ClingViz/encodings/encoding.lp")
-        ctl.ground(context=clingraph.clingo_utils.ClingraphContext())
-        fb = clingraph.Factbase()
-        with ctl.solve(yield_=True) as handle:
-            for model in handle:
-                fb.add_model(model)
-                break
+        for mstring in modelStrings:
+            ctl = clingo.Control(logger=ClingoLogger.logger)
+            ctl.load("./ClingViz/encodings/encoding.lp")
+            ctl.add(mstring)
+            ctl.ground(context=clingraph.clingo_utils.ClingraphContext())
+            fbobj = clingraph.Factbase()
+            with ctl.solve(yield_=True) as handle:
+                for model in handle:
+                    fbobj.add_model(model)
+                    fb.append(fbobj)
+                    break
     except RuntimeError as e:
         return HttpResponseServerError("An error occured during the Clingraph stage: " + str(e) + " Particular: " + ClingoLogger.errorString())
 
-    if len(fb.get_facts()) <= 0:
+    if len(fb[0].get_facts()) <= 0:
         return HttpResponseBadRequest("Your program and your clingraph encoding do not return a model (or do not return one that can be used by clingraph)")
 
     options_models = []
     try:
         clormCtl = ClormControl(unifier=[Option_Context, Select_Option], logger=ClingoLogger.logger)
-        clormCtl.add(modelString)
+        clormCtl.add(modelStrings[0])
         clormCtl.load("./ClingViz/encodings/options-encoding.lp")
         clormCtl.ground()
         with clormCtl.solve(yield_=True) as handle:
             for model in handle:
-                print(model)
+                print("OPTION MODEL: \n")
+                print(model);
                 facts = model.facts(atoms = True, terms = True)
                 options_models.append(facts)
                 break
@@ -115,14 +126,29 @@ def graphUpdate(request):
         return HttpResponseServerError("An error occured during the Option solving stage: " + str(e) + " Particular: " + ClingoLogger.errorString())
 
 
+    for i in range(len(fb)):
+        print("Factbase No." + str((i+1)) + ":\n")
+        print(fb[i].get_facts())
+
+
     oL:OptionsList = createOptionsList(options_models[0])
-    graph = clingraph.compute_graphs(fb)
-    clingraph.render(graph, format="svg")
-    with open('out/default.svg', 'r') as svg_file:
-        svg_content = svg_file.read()
+    for i in range(len(fb)):
+        graph = clingraph.compute_graphs(fb[i])
+        clingraph.render(graph, directory="out", name_format="default_"+str(i), format="svg")
+    svg_content = []
+    for i in range(len(fb)):
+        with open('out/default_'+str(i)+'.svg', 'r') as svg_file:
+            svg_content.append(svg_file.read())
+
+    for i in range(len(fb)):
+        os.remove("out/default_"+str(i)+'.svg')
+
     print("Done. Sending response...")
     print(oL.toJson())
     raw = {"data": svg_content, "option_data": oL.toJson()}
+    print(svg_content[0])
+    if(len(user_input) > 0):
+        print(svg_content[1])
     js = json.dumps(raw)
     response = HttpResponse(js, content_type='application/json', status=200)
     return response

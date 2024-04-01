@@ -1,6 +1,9 @@
-option_context(node,P,checkbox,show_children,false) :- ast_show(node,P), user_input(node,P,checkbox,show_children,false).
-option_context(node,P,checkbox,show_children,true) :- ast_show(node,P), user_input(node,P,checkbox,show_children,true).
-option_context(node,P,checkbox,show_children,false) :- ast_show(node,P), not user_input(node,P,checkbox,show_children,_).
+option_context(node,P,select,in_out, out) :- arg(P), okOut(P).
+option_context(node,P,select,in_out, in) :- arg(P), in(P).
+option_context(node,P,select,in_out,undec) :- arg(P), undec(P).
+select_option(in_out, in).
+select_option(in_out, out).
+select_option(in_out, undec).
 
-
+#show select_option/2.
 #show option_context/5.
