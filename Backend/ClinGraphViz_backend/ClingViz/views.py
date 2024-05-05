@@ -54,14 +54,14 @@ def graphUpdate(request):
         return HttpResponseBadRequest("The request body did not contain user inputs")
 
     user_input = body["user_input"]
-    first_call = len(user_input) > 0
+    first_call = len(user_input) <= 0
     semantic = body["semantic"]
     print("User Input: " + user_input)
     try:
         ctl = clingo.Control(logger=ClingoLogger.logger, arguments=["--models=0"])
         ctl.load("./ClingViz/encodings/program.lp")
 
-        if first_call:
+        if not first_call:
             ctl.add(user_input)
             ctl.load("./ClingViz/encodings/user-encoding.lp")
             if(semantic not in ["adm","cf2","comp","ground","naive","res_ground","stable"]):
