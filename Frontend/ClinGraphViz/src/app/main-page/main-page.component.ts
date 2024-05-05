@@ -25,14 +25,33 @@ export class MainPageComponent implements AfterViewInit {
   currID: string = ""
   optionsList: (Input_Option|Select_Option)[] = []
   errStr: string = ""
+  semanticsSelect = new FormControl('naive')
 
   constructor(private domSanitizer: DomSanitizer, private svgService: SvgServiceService, private fb:FormBuilder, private aspService:ASPtranslateService){
   }
   ngAfterViewInit(): void {
-    this.svgService.put({user_input:""} as GraphRequest).subscribe({next: (data) => {
+    this.svgService.put({user_input:"", semantic:""} as GraphRequest).subscribe({next: (data) => {
       this.svgString = data.data[0];
       this.svgContainer.nativeElement.innerHTML = this.svgString
       this.nodeOptionsList = data.option_data; 
+      console.log("NodeOptions after init:", this.nodeOptionsList)
+      console.log("form after init: ",this.optionsForm)
+    }, error: (err) => {
+      console.log("An error has occured: " + err)
+      this.errStr = err.message
+
+
+    }})
+  }
+
+  reset_graph(){
+    this.svgService.put({user_input:"", semantic:""} as GraphRequest).subscribe({next: (data) => {
+      this.errStr = "";
+      this.svgString = data.data[0];
+      this.solutionSvgs = [];
+      this.svgContainer.nativeElement.innerHTML = this.svgString
+      this.nodeOptionsList = data.option_data;
+      this.updateOptions(this.currID, this.type) ;
       console.log("NodeOptions after init:", this.nodeOptionsList)
       console.log("form after init: ",this.optionsForm)
     }, error: (err) => {
@@ -140,7 +159,7 @@ export class MainPageComponent implements AfterViewInit {
       asp.push(this.aspService.toUserInputASP(val.compType,val.id,opt.type,opt.name,opt.state))
     })})
     let aspString:string = asp.join("\n")
-    let req = {"user_input":aspString}
+    let req = {"user_input":aspString, "semantic":this.semanticsSelect.value}
     console.log(req)
     this.svgService.put(req as GraphRequest).subscribe({next: (data) => {
       console.log("Were in data!")

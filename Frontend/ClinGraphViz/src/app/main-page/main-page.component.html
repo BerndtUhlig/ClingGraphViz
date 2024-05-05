@@ -1,11 +1,24 @@
 
 <div class="row">
-    <div class="col left">
+    <div class="col options">
         <label>OPTIONS</label>
         <br>
         <app-graph-options [optionsList]="optionsList" [optionsForm]="optionsForm" [compID]="currID" (submitEvent)="submitForm()"></app-graph-options>
     </div>
-    <div class="col right">
+    <div class="col semantic">
+        <label>AF Semantic</label>
+        <br>
+        <select [formControl]="semanticsSelect">
+            <option value="adm">adm</option>
+            <option value="cf2">cf2</option>
+            <option value="comp">comp</option>
+            <option value="ground">ground</option>
+            <option value="naive">naive</option>
+            <option value="res_ground">res_ground</option>
+            <option value="stable">stable</option>
+        </select>
+    </div>
+    <div class="col graph">
         <div id="primaryGraph">
         <h2 *ngIf="errStr.length > 0" style="color: red;">{{errStr}}</h2>
         <div #svgContainer (click)="handleNodeClick($event)"></div>
@@ -16,6 +29,26 @@
         <div *ngFor="let svg of solutionSvgs">
             <div [innerHTML]="svg"></div>
         </div>
+        </div>  
+        </div>
+        </div>
     </div>
+    <div class="col list">
+        <label>Current Selection</label> 
+        <button (click)="reset_graph()">Reset</button>
+        <div class="table-container">
+        <table *ngFor="let node of nodeOptionsList" class="table-element">
+            <label>Node: {{node.id}}</label>
+            <tr>
+                <th>Option</th>
+                <th>Value</th>
+            </tr>
+                <tr *ngFor="let option of node.options">
+                    <td>{{option.name}}</td>
+                    <td *ngIf="currID == node.id">{{optionsForm.value[option.name]}}</td>
+                    <td *ngIf="currID != node.id">{{option.state}}</td>
+                </tr>
+        </table>
+        </div>
     </div>
 </div>

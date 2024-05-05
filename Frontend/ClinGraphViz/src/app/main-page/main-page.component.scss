@@ -1,32 +1,49 @@
-* {
-    box-sizing: border-box;
+
+  
+
+  .row {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+
+  .col.semantic {
+    margin-left: 50px;
+
+  }
+  .col.graph {
+    margin-left: 100px;
+  }
+
+  .col.list{
+    margin-left: 200px;
+  }
+
+  .table-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  table {
+    font-family: arial, sans-serif;
+    border-collapse: collapse;
+  }
+
+  .table-element {
+    margin-left: 10px;
+    margin-top: auto;
   }
   
-  /* Create two equal columns that floats next to each other */
-  .col {
-    float: left;
-    padding: 10px;
-    height: 300px; /* Should be removed. Only for demonstration */
-  }
-  .left {
-    width: 25%;
+  td, th {
+    border: 1px solid #dddddd;
+    text-align: left;
+    padding: 8px;
   }
   
-  .right {
-    width: 75%;
+  tr:nth-child(even) {
+    background-color: #dddddd;
   }
+
   
   
-  /* Clear floats after the columns */
-  .row:after {
-    content: "";
-    display: table;
-    clear: both;
-  }
-  
-  /* Responsive layout - makes the two columns stack on top of each other instead of next to each other */
-  @media screen and (max-width: 600px) {
-    .col {
-      width: 100%;
-    }
-  }
