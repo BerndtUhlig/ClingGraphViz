@@ -1,5 +1,5 @@
-in(P) :- user_input(node,P,select,in_out,in).
-out(P) :- user_input(node,P,select,in_out,out).
+user_in(P) :- user_input(node,P,select,in_out,in).
+user_out(P) :- user_input(node,P,select,in_out,out).
 
-in(X) :- arg(X), not okOut(X), not undec(X).
-
+:- in(X), user_out(X).
+:- out(X), user_in(X).

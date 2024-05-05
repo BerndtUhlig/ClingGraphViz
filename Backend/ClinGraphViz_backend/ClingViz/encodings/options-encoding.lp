@@ -1,4 +1,4 @@
-option_context(node,P,select,in_out, out) :- arg(P), okOut(P).
+option_context(node,P,select,in_out, out) :- arg(P), out(P).
 option_context(node,P,select,in_out, in) :- arg(P), in(P).
 option_context(node,P,select,in_out,undec) :- arg(P), undec(P).
 select_option(in_out, in).

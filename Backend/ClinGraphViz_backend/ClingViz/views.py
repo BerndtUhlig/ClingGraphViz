@@ -52,15 +52,21 @@ def graphUpdate(request):
 
     if not "user_input" in body.keys():
         return HttpResponseBadRequest("The request body did not contain user inputs")
+
     user_input = body["user_input"]
+    first_call = len(user_input) > 0
+    semantic = body["semantic"]
     print("User Input: " + user_input)
     try:
         ctl = clingo.Control(logger=ClingoLogger.logger, arguments=["--models=0"])
         ctl.load("./ClingViz/encodings/program.lp")
 
-        if len(user_input) > 0:
+        if first_call:
             ctl.add(user_input)
             ctl.load("./ClingViz/encodings/user-encoding.lp")
+            if(semantic not in ["adm","cf2","comp","ground","naive","res_ground","stable"]):
+                return HttpResponseBadRequest("Provided semantic not in list")
+            ctl.load("./ClingViz/encodings/AFSemantics/"+semantic+".dl")
 
         ctl.ground()
         models = []
@@ -126,9 +132,9 @@ def graphUpdate(request):
         return HttpResponseServerError("An error occured during the Option solving stage: " + str(e) + " Particular: " + ClingoLogger.errorString())
 
 
-    for i in range(len(fb)):
-        print("Factbase No." + str((i+1)) + ":\n")
-        print(fb[i].get_facts())
+   # for i in range(len(fb)):
+        #print("Factbase No." + str((i+1)) + ":\n")
+        #print(fb[i].get_facts())
 
 
     oL:OptionsList = createOptionsList(options_models[0])
@@ -146,9 +152,9 @@ def graphUpdate(request):
     print("Done. Sending response...")
     print(oL.toJson())
     raw = {"data": svg_content, "option_data": oL.toJson()}
-    print(svg_content[0])
-    if(len(user_input) > 0):
-        print(svg_content[1])
+   # print(svg_content[0])
+    #if(len(svg_content) > 0):
+        #print(svg_content[1])
     js = json.dumps(raw)
     response = HttpResponse(js, content_type='application/json', status=200)
     return response
