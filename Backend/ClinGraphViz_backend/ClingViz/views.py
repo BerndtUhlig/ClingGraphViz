@@ -42,6 +42,7 @@ def mockViz(request):
     return HttpResponse(js, content_type='application/json', status=200)
 
 
+
 @require_http_methods(["PUT"])
 @csrf_exempt
 def graphUpdate(request):
@@ -56,6 +57,9 @@ def graphUpdate(request):
     user_input = body["user_input"]
     first_call = len(user_input) <= 0
     semantic = body["semantic"]
+    semanticNames = fetchSemantics();
+    print(semanticNames)
+
     print("User Input: " + user_input)
     try:
         ctl = clingo.Control(logger=ClingoLogger.logger, arguments=["--models=0"])
@@ -64,7 +68,7 @@ def graphUpdate(request):
         if not first_call:
             ctl.add(user_input)
             ctl.load("./ClingViz/encodings/user-encoding.lp")
-            if(semantic not in ["adm","cf2","comp","ground","naive","res_ground","stable"]):
+            if(semantic not in semanticNames):
                 return HttpResponseBadRequest("Provided semantic not in list")
             ctl.load("./ClingViz/encodings/AFSemantics/"+semantic+".dl")
 
@@ -146,18 +150,31 @@ def graphUpdate(request):
         with open('out/default_'+str(i)+'.svg', 'r') as svg_file:
             svg_content.append(svg_file.read())
 
+
     for i in range(len(fb)):
-        os.remove("out/default_"+str(i)+'.svg')
+       os.remove("out/default_"+str(i)+'.svg')
 
     print("Done. Sending response...")
     print(oL.toJson())
-    raw = {"data": svg_content, "option_data": oL.toJson()}
-   # print(svg_content[0])
+    raw = {"data": svg_content, "option_data": oL.toJson(), "semantic_names": semanticNames}
+    # print(svg_content[0])
     #if(len(svg_content) > 0):
         #print(svg_content[1])
     js = json.dumps(raw)
     response = HttpResponse(js, content_type='application/json', status=200)
     return response
+
+
+
+def fetchSemantics():
+    directory = os.fsencode("./ClingViz/encodings/AFSemantics/");
+    filenames:[str] = []
+    for file in os.listdir(directory):
+        filename = os.fsdecode(file)
+        sep = filename.split(".")
+        filenames.append(sep[0])
+    return filenames
+
 
 
 
