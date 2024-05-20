@@ -6,12 +6,16 @@
         <app-graph-options [optionsList]="optionsList" [optionsForm]="optionsForm" [compID]="currID" (submitEvent)="submitForm()"></app-graph-options>
     </div>
     <div class="col semantic">
+        <div>
         <label>AF Semantic</label>
         <br>
         <select [formControl]="semanticsSelect">
             <option *ngFor="let item of semantics">{{item}}</option>
         </select>
     </div>
+        <button class="refresh-button" (click)="reload_semantics()">Reload Semantics</button>
+    </div>
+  
     <div class="col graph">
         <div id="primaryGraph">
         <h2 *ngIf="errStr.length > 0" style="color: red;">{{errStr}}</h2>
@@ -28,8 +32,11 @@
         </div>
     </div>
     <div class="col list">
+        <div>
         <label>Current Selection</label> 
-        <button (click)="reset_graph()">Reset</button>
+        <button class="reset-graph-button" (click)="reset_graph()">Reset Graph</button>
+    </div>
+    <br>
         <div class="table-container">
         <table *ngFor="let node of nodeOptionsList" class="table-element">
             <label>Node: {{node.id}}</label>

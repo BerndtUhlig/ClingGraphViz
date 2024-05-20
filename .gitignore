@@ -72,6 +72,8 @@ modules/.vscode
 .vimrc
 .nvimrc
 
+
+
 # Don't check in secret files
 *secret.js
 
@@ -102,4 +104,8 @@ baseline.json
 aio/content/examples/.DS_Store
 
 Frontend/ClinGraphViz/.angular/cache
-.pyc
+Backend/ClinGraphViz_backend/__pycache_
+Backend/ClinGraphViz_backend/ClinGraphViz_backend/__pycache__/*
+Backend/ClinGraphViz_backend/ClingViz/__pycache__/*
+Backend/ClinGraphViz_backend/ClingViz/__pycache__/urls.cpython-310.pyc
+Backend/ClinGraphViz_backend/ClingViz/__pycache__/views.cpython-310.pyc

@@ -31,12 +31,11 @@ export class MainPageComponent implements AfterViewInit {
   constructor(private domSanitizer: DomSanitizer, private svgService: SvgServiceService, private fb:FormBuilder, private aspService:ASPtranslateService){
   }
   ngAfterViewInit(): void {
+    this.reload_semantics()
     this.svgService.put({user_input:"", semantic:""} as GraphRequest).subscribe({next: (data) => {
       this.svgString = data.data[0];
       this.svgContainer.nativeElement.innerHTML = this.svgString
       this.nodeOptionsList = data.option_data; 
-      this.semantics = data.semantic_names;
-      this.semanticsSelect = new FormControl(this.semantics[0])
       console.log(this.semantics)
       console.log("NodeOptions after init:", this.nodeOptionsList)
       console.log("form after init: ",this.optionsForm)
@@ -48,6 +47,22 @@ export class MainPageComponent implements AfterViewInit {
     }})
   }
 
+  reload_semantics(){
+    this.svgService.getSemantics().subscribe({next: (data)=> {
+      this.semantics = data.semantic_names;
+      if(this.semantics.length <= 0){
+        this.errStr = "You have not provided any Semantics in the backend!"
+      } else {
+        this.errStr = ""
+        this.semanticsSelect = new FormControl(this.semantics[0]) 
+      }
+    }, error: (err) => {
+      console.log("An error has occured: " + err)
+      this.errStr = err.message
+    }});
+  }
+  
+
   reset_graph(){
     this.svgService.put({user_input:"", semantic:""} as GraphRequest).subscribe({next: (data) => {
       this.errStr = "";
@@ -55,8 +70,6 @@ export class MainPageComponent implements AfterViewInit {
       this.solutionSvgs = [];
       this.svgContainer.nativeElement.innerHTML = this.svgString
       this.nodeOptionsList = data.option_data;
-      this.semantics = data.semantic_names;
-      this.semanticsSelect = new FormControl(this.semantics[0])
       this.updateOptions(this.currID, this.type) ;
       console.log("NodeOptions after init:", this.nodeOptionsList)
       console.log("form after init: ",this.optionsForm)
@@ -176,8 +189,6 @@ export class MainPageComponent implements AfterViewInit {
       console.log(this.solutionSvgs);
       this.svgContainer.nativeElement.innerHTML = this.svgString
       this.nodeOptionsList = data.option_data; 
-      this.semantics = data.semantic_names; 
-      this.semanticsSelect = new FormControl(this.semantics[0])
       console.log("node options after response of form submit: ", this.nodeOptionsList)
       this.optionsList = []
       if(this.currID !== ""){

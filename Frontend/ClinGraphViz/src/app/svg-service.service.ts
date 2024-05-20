@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
-import { GraphRequest, GraphResponse } from './types/messageTypes';
+import { GraphRequest, GraphResponse, SemanticResponse } from './types/messageTypes';
 import { catchError, map, tap } from 'rxjs/operators';
 import { Observable } from 'rxjs/internal/Observable';
 import { of } from 'rxjs/internal/observable/of';
@@ -15,6 +15,18 @@ export class SvgServiceService {
     private http: HttpClient) { }
 
     private backend_URI = "http://localhost:8000"
+
+    getSemantics(): Observable<SemanticResponse>{
+      const resp = this.http.get<SemanticResponse>(this.backend_URI+"/fetchSemantics/")
+        .pipe(
+          catchError((error:HttpErrorResponse,caught) => {
+            // Handle the error here (e.g., log it or throw a custom error)
+            console.error('Error occurred during the HTTP request:', error);
+            return throwError(() => new Error(error.error)); 
+          })
+        );
+        return resp;
+    }
 
 
     put(graphRequest:GraphRequest): Observable<GraphResponse>{

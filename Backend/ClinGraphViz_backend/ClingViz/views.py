@@ -41,6 +41,14 @@ def mockViz(request):
     js = json.dumps(raw)
     return HttpResponse(js, content_type='application/json', status=200)
 
+@require_http_methods(["GET"])
+@csrf_exempt
+def fetchSemantics(request):
+    filenames = listSemantics()
+    raw = {"semantic_names":filenames}
+    js = json.dumps(raw)
+    response = HttpResponse(js, content_type='application/json', status=200)
+    return response
 
 
 @require_http_methods(["PUT"])
@@ -57,8 +65,9 @@ def graphUpdate(request):
     user_input = body["user_input"]
     first_call = len(user_input) <= 0
     semantic = body["semantic"]
-    semanticNames = fetchSemantics();
+    semanticNames = listSemantics();
     print(semanticNames)
+
 
     print("User Input: " + user_input)
     try:
@@ -164,16 +173,17 @@ def graphUpdate(request):
     response = HttpResponse(js, content_type='application/json', status=200)
     return response
 
-
-
-def fetchSemantics():
+def listSemantics():
     directory = os.fsencode("./ClingViz/encodings/AFSemantics/");
-    filenames:[str] = []
+    filenames: [str] = []
     for file in os.listdir(directory):
         filename = os.fsdecode(file)
         sep = filename.split(".")
-        filenames.append(sep[0])
+        if sep[1] == "dl":
+            filenames.append(sep[0])
     return filenames
+
+
 
 
 
