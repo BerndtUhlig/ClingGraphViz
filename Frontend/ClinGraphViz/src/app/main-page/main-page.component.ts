@@ -25,7 +25,8 @@ export class MainPageComponent implements AfterViewInit {
   currID: string = ""
   optionsList: (Input_Option|Select_Option)[] = []
   errStr: string = ""
-  semanticsSelect = new FormControl('naive')
+  semanticsSelect = new FormControl('')
+  semantics:string[] = []
 
   constructor(private domSanitizer: DomSanitizer, private svgService: SvgServiceService, private fb:FormBuilder, private aspService:ASPtranslateService){
   }
@@ -34,6 +35,9 @@ export class MainPageComponent implements AfterViewInit {
       this.svgString = data.data[0];
       this.svgContainer.nativeElement.innerHTML = this.svgString
       this.nodeOptionsList = data.option_data; 
+      this.semantics = data.semantic_names;
+      this.semanticsSelect = new FormControl(this.semantics[0])
+      console.log(this.semantics)
       console.log("NodeOptions after init:", this.nodeOptionsList)
       console.log("form after init: ",this.optionsForm)
     }, error: (err) => {
@@ -51,6 +55,8 @@ export class MainPageComponent implements AfterViewInit {
       this.solutionSvgs = [];
       this.svgContainer.nativeElement.innerHTML = this.svgString
       this.nodeOptionsList = data.option_data;
+      this.semantics = data.semantic_names;
+      this.semanticsSelect = new FormControl(this.semantics[0])
       this.updateOptions(this.currID, this.type) ;
       console.log("NodeOptions after init:", this.nodeOptionsList)
       console.log("form after init: ",this.optionsForm)
@@ -170,6 +176,8 @@ export class MainPageComponent implements AfterViewInit {
       console.log(this.solutionSvgs);
       this.svgContainer.nativeElement.innerHTML = this.svgString
       this.nodeOptionsList = data.option_data; 
+      this.semantics = data.semantic_names; 
+      this.semanticsSelect = new FormControl(this.semantics[0])
       console.log("node options after response of form submit: ", this.nodeOptionsList)
       this.optionsList = []
       if(this.currID !== ""){

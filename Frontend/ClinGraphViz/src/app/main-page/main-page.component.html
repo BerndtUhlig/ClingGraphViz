@@ -9,13 +9,7 @@
         <label>AF Semantic</label>
         <br>
         <select [formControl]="semanticsSelect">
-            <option value="adm">adm</option>
-            <option value="cf2">cf2</option>
-            <option value="comp">comp</option>
-            <option value="ground">ground</option>
-            <option value="naive">naive</option>
-            <option value="res_ground">res_ground</option>
-            <option value="stable">stable</option>
+            <option *ngFor="let item of semantics">{{item}}</option>
         </select>
     </div>
     <div class="col graph">

@@ -8,4 +8,5 @@ export interface GraphRequest {
 export interface GraphResponse {
     data: string[],
     option_data: NodeOptions[]
+    semantic_names: string[];
 }
